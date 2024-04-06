@@ -19,7 +19,7 @@ on:
         type: boolean
 
 env:
-  MODULE_ID: bx-postgresql
+  MODULE_ID: bx-hypersql
   SNAPSHOT: ${{ inputs.snapshot || false }}
   JDK: 17
   GRADLE: 8.7
