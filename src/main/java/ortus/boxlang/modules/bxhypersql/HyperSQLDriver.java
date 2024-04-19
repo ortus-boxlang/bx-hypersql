@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ortus.boxlang.runtime.config.segments.DatasourceConfig;
 import ortus.boxlang.runtime.jdbc.drivers.DatabaseDriverType;
-import ortus.boxlang.runtime.jdbc.drivers.IJDBCDriver;
+import ortus.boxlang.runtime.jdbc.drivers.GenericJDBCDriver;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
@@ -31,27 +31,10 @@ import ortus.boxlang.runtime.types.util.StructUtil;
  * The HyperSQL JDBC Driver
  * https://hsqldb.org/doc/2.0/guide/dbproperties-chapt.html#dpc_connection_url
  */
-public class HyperSQLDriver implements IJDBCDriver {
+public class HyperSQLDriver extends GenericJDBCDriver {
 
-	/**
-	 * The name of the driver
-	 */
-	protected static final Key					NAME				= new Key( "Hypersql" );
-
-	/**
-	 * The class name of the driver
-	 */
-	protected static final String				DRIVER_CLASS_NAME	= "org.hsqldb.jdbc.JDBCDriver";
-
-	/**
-	 * The default delimiter for the custom parameters
-	 */
-	protected static final String				DEFAULT_DELIMITER	= ";";
-
-	/**
-	 * Default Protocols Map
-	 */
-	protected static final Map<String, String>	DEFAULT_PROTOCOLS	= Map.of(
+	public static final String					DEFAULT_PROTOCOL	= "mem";
+	protected static final Map<String, String>	AVAILABLE_PROTOCOLS	= Map.of(
 	    "file", "file",
 	    "mem", "mem",
 	    "res", "res",
@@ -62,29 +45,24 @@ public class HyperSQLDriver implements IJDBCDriver {
 	);
 
 	/**
-	 * The default parameters for the connection URL
-	 * https://hsqldb.org/doc/2.0/guide/dbproperties-chapt.html
+	 * The protocol in use for the jdbc connection
 	 */
-	protected static final IStruct				DEFAULT_PARAMS		= Struct.of(
-	    "create", "true"
-	);
-
-	@Override
-	public Key getName() {
-		return NAME;
-	}
-
-	@Override
-	public DatabaseDriverType getType() {
-		return DatabaseDriverType.HYPERSONIC;
-	}
+	protected String							protocol			= DEFAULT_PROTOCOL;
 
 	/**
-	 * The class name of the driver
+	 * Constructor
 	 */
-	@Override
-	public String getClassName() {
-		return DRIVER_CLASS_NAME;
+	public HyperSQLDriver() {
+		super();
+		this.name					= new Key( "Hypersql" );
+		this.type					= DatabaseDriverType.HYPERSONIC;
+		// org.apache.derby.jdbc.ClientDriver For client connections
+		this.driverClassName		= "org.hsqldb.jdbc.JDBCDriver";
+		this.defaultDelimiter		= ";";
+		this.defaultCustomParams	= Struct.of(
+		    "create", "true"
+		);
+		this.defaultProperties		= Struct.of();
 	}
 
 	@Override
@@ -96,30 +74,30 @@ public class HyperSQLDriver implements IJDBCDriver {
 		}
 
 		// Default the protocol to mem
-		String protocol = ( String ) config.properties.getOrDefault( "protocol", "mem" );
-		if ( !DEFAULT_PROTOCOLS.containsKey( protocol ) ) {
+		this.protocol = ( String ) config.properties.getOrDefault( "protocol", DEFAULT_PROTOCOL );
+		if ( !AVAILABLE_PROTOCOLS.containsKey( protocol ) ) {
 			throw new IllegalArgumentException(
-			    "The protocol property is invalid for the HyperSQL JDBC Driver: [" + protocol + "]. Available protocols are: " +
-			        String.join( ", ", DEFAULT_PROTOCOLS.keySet() )
+			    String.format(
+			        "The protocol '%s' is not valid for the Apache Derby JDBC Driver. Available protocols are %s",
+			        this.protocol,
+			        AVAILABLE_PROTOCOLS.keySet().toString()
+			    )
 			);
 		}
 
-		// Custom Params
-		IStruct params = new Struct( DEFAULT_PARAMS );
 		// If the custom parameters are a string, convert them to a struct
 		if ( config.properties.get( Key.custom ) instanceof String castedParams ) {
-			config.properties.put( Key.custom, StructUtil.fromQueryString( castedParams, DEFAULT_DELIMITER ) );
+			config.properties.put( Key.custom, StructUtil.fromQueryString( castedParams, this.defaultDelimiter ) );
 		}
-		// Add the custom parameters
-		config.properties.getAsStruct( Key.custom ).forEach( params::put );
+		IStruct customParams = config.properties.getAsStruct( Key.custom );
 
 		// Add username if it exists
 		if ( config.properties.containsKey( Key.username ) && config.properties.getAsString( Key.username ).length() > 0 ) {
-			params.put( "user", config.properties.get( Key.username ) );
+			customParams.put( "user", config.properties.get( Key.username ) );
 		}
 		// Add password if it exists
 		if ( config.properties.containsKey( Key.password ) ) {
-			params.put( Key.password, config.properties.get( Key.password ) );
+			customParams.put( Key.password, config.properties.get( Key.password ) );
 		}
 
 		// If we have a protocol of hsql,hsqls,http,hhtps, we need to add the host and port
@@ -141,7 +119,7 @@ public class HyperSQLDriver implements IJDBCDriver {
 			    protocol,
 			    hostAndPort,
 			    database,
-			    StructUtil.toQueryString( params, DEFAULT_DELIMITER )
+			    customParamsToQueryString( config )
 			);
 		} else {
 			// Build the connection URL with no host info
@@ -149,7 +127,7 @@ public class HyperSQLDriver implements IJDBCDriver {
 			    "jdbc:hsqldb:%s:%s;%s",
 			    protocol,
 			    database,
-			    StructUtil.toQueryString( params, DEFAULT_DELIMITER )
+			    customParamsToQueryString( config )
 			);
 		}
 	}
