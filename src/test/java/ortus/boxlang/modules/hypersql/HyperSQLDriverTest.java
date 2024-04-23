@@ -1,4 +1,4 @@
-package ortus.boxlang.modules.bxhypersql;
+package ortus.boxlang.modules.hypersql;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
