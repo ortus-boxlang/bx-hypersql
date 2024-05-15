@@ -1,46 +1,48 @@
 {
-    "name":"BoxLang HyperSQL",
-    "version":"@build.version@+@build.number@",
-    "location"  : "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-hypersql/@build.version@/bx-hypersql-@build.version@.zip",
-    "author":"Ortus Solutions",
-    "homepage":"https://github.com/boxlang-modules/bx-hypersql",
-    "documentation":"https://github.com/boxlang-modules/bx-hypersql",
-    "repository":{
-        "type":"git",
-        "URL":"https://github.com/boxlang-modules/bx-hypersql"
-    },
-    "bugs":"https://github.com/boxlang-modules/bx-hypersql/issues",
-    "slug":"bx-hypersql",
-    "shortDescription":"Module template for BoxLang modules",
-    "type":"boxlang-modules",
-    "keywords":[
-        "boxlang"
-    ],
-    "private":false,
-    "license":[
-        {
-            "type":"Apache-2.0",
-            "URL":"https://www.apache.org/licenses/LICENSE-2.0"
-        }
-    ],
-	"devDependencies" 	:{
-		"commandbox-cfformat":"*",
-        "commandbox-docbox":"*",
-		"commandbox-dotenv":"*",
-        "commandbox-cfconfig":"*",
+	"name": "BoxLang HyperSQL",
+	"version": "@build.version@+@build.number@",
+	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-hypersql/@build.version@/bx-hypersql-@build.version@.zip",
+	"author": "Ortus Solutions",
+	"homepage": "https://github.com/boxlang-modules/bx-hypersql",
+	"documentation": "https://github.com/boxlang-modules/bx-hypersql",
+	"repository": {
+		"type": "git",
+		"URL": "https://github.com/boxlang-modules/bx-hypersql"
+	},
+	"bugs": "https://github.com/boxlang-modules/bx-hypersql/issues",
+	"slug": "bx-hypersql",
+	"shortDescription": "Module template for BoxLang modules",
+	"type": "boxlang-modules",
+	"boxlang": {
+		"moduleName": "hypersql"
+	},
+	"keywords": ["boxlang"],
+	"private": false,
+	"listed": false,
+	"license": [
+		{
+			"type": "Apache-2.0",
+			"URL": "https://www.apache.org/licenses/LICENSE-2.0"
+		}
+	],
+	"devDependencies": {
+		"commandbox-cfformat": "*",
+		"commandbox-docbox": "*",
+		"commandbox-dotenv": "*",
+		"commandbox-cfconfig": "*",
 		"testbox": "*"
 	},
-    "ignore": [
-        "**/.*",
-        "settings.gradle",
-        "gradlew.bat",
-        "gradlew",
-        "build.gradle",
-        "/src/**",
-        "gradle/**"
-    ],
-	"scripts":{
+	"ignore": [
+		"**/.*",
+		"settings.gradle",
+		"gradlew.bat",
+		"gradlew",
+		"build.gradle",
+		"/src/**",
+		"gradle/**"
+	],
+	"scripts": {
 		"setupTemplate": "task run taskFile=src/build/SetupTemplate.cfc",
-        "onRelease":"publish"
-    }
+		"onRelease": "publish"
+	}
 }
