@@ -47,7 +47,7 @@ component {
 		command( "tokenReplace" )
 			.params(
 				path        = "/#variables.cwd#/**",
-				token       = "bx-postgresql",
+				token       = "bx-HyperSQL",
 				replacement = moduleSlug
 			)
 			.run();

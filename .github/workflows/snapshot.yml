@@ -1,4 +1,4 @@
-name: BoxLang PostgreSQL Snapshots
+name: BoxLang HyperSQL Snapshots
 
 on:
   push:
