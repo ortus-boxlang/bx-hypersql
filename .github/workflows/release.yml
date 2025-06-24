@@ -74,7 +74,7 @@ jobs:
           fi
 
       - name: Update changelog [unreleased] with latest version
-        uses: thomaseizinger/keep-a-changelog-new-release@2.0.0
+        uses: thomaseizinger/keep-a-changelog-new-release@3.1.0
         if: env.SNAPSHOT == 'false'
         with:
           changelogPath: ./changelog.md
@@ -141,9 +141,10 @@ jobs:
         run: |
           cd build/module
           box forgebox publish --force
+          cd $GITHUB_WORKSPACE
 
       - name: Create Github Release
-        uses: taiki-e/create-gh-release-action@v1.8.0
+        uses: taiki-e/create-gh-release-action@v1.9.1
         continue-on-error: true
         if: env.SNAPSHOT == 'false'
         id: create_release
@@ -189,6 +190,11 @@ jobs:
         uses: actions/checkout@v4
         if: env.LTS == 'true'
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: ${{ env.GRADLE }}
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -203,9 +209,9 @@ jobs:
         run: |
           if [ $LTS == 'true' ]
           then
-            ./gradlew bumpPatchVersion --stacktrace --console=plain
+            gradle bumpPatchVersion --stacktrace --console=plain
           else
-            ./gradlew bumpMinorVersion --stacktrace --console=plain
+            gradle bumpMinorVersion --stacktrace --console=plain
           fi
           git pull
 

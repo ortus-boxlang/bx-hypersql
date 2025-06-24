@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Updated 
+
+- Bumps org.hsqldb:hsqldb from 2.7.2 to 2.7.4.
+
 ## [1.0.0] - 2024-06-13
 
 - First iteration of this module
