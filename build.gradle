@@ -34,7 +34,7 @@ dependencies {
 	// You must run `./gradle build -x test` in the BoxLang project
     compileOnly files( 'src/test/resources/libs/boxlang-1.0.0-all.jar' )
     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
-	implementation 'org.hsqldb:hsqldb:2.7.2'
+	implementation 'org.hsqldb:hsqldb:2.7.4'
 
     // Testing Dependencies
 	testImplementation files( 'src/test/resources/libs/boxlang-1.0.0-all.jar' )
