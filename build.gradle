@@ -16,11 +16,19 @@ plugins {
 /**
  * Project Properties
  */
-sourceCompatibility = jdkVersion
-targetCompatibility = jdkVersion
 ext {
 	buildID = System.getenv( 'BUILD_ID' ) ?: '0'
 	branch = System.getenv( 'BRANCH' ) ?: 'development'
+
+	if ( branch == 'development' ) {
+		// If the branch is 'development', ensure the version ends with '-snapshot'
+		// This replaces any existing prerelease identifier with '-snapshot'
+		version = version.contains('-') ? version.replaceAll(/-.*/, '-snapshot') : "${version}-snapshot"
+		boxlangVersion = boxlangVersion.contains('-') ? boxlangVersion.replaceAll(/-.*/, '-snapshot') : "${boxlangVersion}-snapshot"
+	}
+
+	boxlangJarName = "boxlang-${boxlangVersion}.jar"
+	boxlangJarPath = "boxlang/build/libs/${boxlangJarName}"
 }
 
 repositories {
@@ -29,10 +37,27 @@ repositories {
 }
 
 dependencies {
-	// Until BoxLang is published to Maven Central
-	// Look for it in the local build directory
-	// You must run `./gradle build -x test` in the BoxLang project
-    compileOnly files( 'src/test/resources/libs/boxlang-1.0.0-all.jar' )
+	// BoxLang Runtime
+	println "Boxlang version is ${boxlangVersion}, looking for ${boxlangJarName} at ${boxlangJarPath}"
+	if ( file( "../../${boxlangJarPath}" ).exists() ) {
+		// Run against a local BoxLang build
+		// You must run `./gradle build -x test` in the BoxLang project
+		compileOnly files( "../../${boxlangJarPath}" )
+		testImplementation files( "../../${boxlangJarPath}" )
+	} else if ( file( "../${boxlangJarPath}" ).exists() ) {
+		// Run against a local BoxLang build
+		// You must run `./gradle build -x test` in the BoxLang project
+		compileOnly files( "../${boxlangJarPath}" )
+		testImplementation files( "../${boxlangJarPath}" )
+	} else if ( file( "src/test/resources/libs/${boxlangJarName}" ).exists() ) {
+		// Downloaded Dependencies
+		compileOnly files( "src/test/resources/libs/${boxlangJarName}" )
+		testImplementation files( "src/test/resources/libs/${boxlangJarName}" )
+	} else {
+		// no snapshots on maven
+		compileOnly "io.boxlang:boxlang:${boxlangVersion.replaceAll(/-snapshot/, '')}"
+	}
+
     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
 	implementation 'org.hsqldb:hsqldb:2.7.4'
 
@@ -52,7 +77,7 @@ compileJava {
 	// Compiler Options
 	options.incremental = true
 	options.encoding = 'UTF-8'
-	options.debug()
+	options.debug = true
 }
 
 compileTestJava{
@@ -67,7 +92,7 @@ javadoc {
 	options.addBooleanOption( 'html5', true )
 }
 task zipJavadocs( type: Zip ) {
-	group "documentation"
+	group = "documentation"
 	from javadoc.destinationDir
 	archiveFileName = "${project.name}-javadocs-${version}.zip"
 	destinationDirectory = file( "$buildDir/distributions" )
@@ -155,7 +180,7 @@ task createModuleStructure(type: Copy) {
     destinationDir = file( 'build/module' )
 }
 task zipModuleStructure( type: Zip ) {
-    group "distribution"
+    group = "distribution"
     from createModuleStructure.destinationDir
     archiveFileName = "${project.name}-${version}.zip"
     destinationDirectory = file( "$buildDir/distributions" )
