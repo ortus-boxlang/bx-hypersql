@@ -14,6 +14,7 @@ env:
 jobs:
   tests:
     name: Tests ${{ github.event.repository.name }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     env:
       DB_USER: root
       DB_PASSWORD: root
